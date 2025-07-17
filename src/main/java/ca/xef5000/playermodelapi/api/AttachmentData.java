@@ -9,5 +9,6 @@ import java.io.Serializable;
 public record AttachmentData(ItemStack item,
                              AttachmentPoint point,
                              Vector3f offsetTranslation,
-                             Vector3f offsetRotation) implements Serializable {
+                             Vector3f offsetRotation,
+                             Vector3f scale) implements Serializable {
 }

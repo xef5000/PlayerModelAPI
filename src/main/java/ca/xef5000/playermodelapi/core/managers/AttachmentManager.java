@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AttachmentManager implements  IPlayerModelAPI {
+public class AttachmentManager implements IPlayerModelAPI {
 
     private final PlayerModelAPI plugin;
 
@@ -31,7 +31,7 @@ public class AttachmentManager implements  IPlayerModelAPI {
     }
 
     @Override
-    public void attach(Player player, ItemStack item, AttachmentPoint point, Vector3f offsetTranslation, Vector3f offsetRotation) {
+    public void attach(Player player, ItemStack item, AttachmentPoint point, Vector3f offsetTranslation, Vector3f offsetRotation, Vector3f scale) {
         // 1. Spawn the ItemDisplay entity
         Location spawnLocation = player.getEyeLocation();
         spawnLocation.setYaw(0);
@@ -48,13 +48,13 @@ public class AttachmentManager implements  IPlayerModelAPI {
         player.addPassenger(display);
 
         // 3. Create and store our attachment object
-        AttachmentImpl attachment = new AttachmentImpl(display, point, offsetTranslation, offsetRotation);
+        AttachmentImpl attachment = new AttachmentImpl(display, point, offsetTranslation, offsetRotation, scale);
         activeAttachments.computeIfAbsent(player.getUniqueId(), k -> new ArrayList<>()).add(attachment);
 
         // 4. Set its initial transformation
         attachment.update(player);
 
-        AttachmentData data = new AttachmentData(item, point, offsetTranslation, offsetRotation);
+        AttachmentData data = new AttachmentData(item, point, offsetTranslation, offsetRotation, scale);
         plugin.getDataManager().saveAttachmentData(player, data);
     }
 
@@ -66,6 +66,11 @@ public class AttachmentManager implements  IPlayerModelAPI {
                 attachment.getDisplayEntity().remove();
             }
         }
+    }
+
+    @Override
+    public Map<UUID, List<AttachmentImpl>> getActiveAttachments() {
+        return activeAttachments;
     }
 
     @Override

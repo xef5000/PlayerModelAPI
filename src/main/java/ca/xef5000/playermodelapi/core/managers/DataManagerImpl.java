@@ -35,7 +35,7 @@ public class DataManagerImpl implements DataManager {
                 List<AttachmentData> dataList = deserializeAttachmentData(bytes);
                 // Re-create the live attachments
                 for (AttachmentData data : dataList) {
-                    getApi().attach(player, data.item(), data.point(), data.offsetTranslation(), data.offsetRotation());
+                    getApi().attach(player, data.item(), data.point(), data.offsetTranslation(), data.offsetRotation(), data.scale());
                 }
             } catch (IOException | ClassNotFoundException e) {
                 plugin.getLogger().severe("Failed to load attachment data for " + player.getName());

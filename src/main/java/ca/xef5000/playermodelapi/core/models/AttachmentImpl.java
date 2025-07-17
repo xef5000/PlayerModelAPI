@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
+import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -17,12 +18,14 @@ public class AttachmentImpl implements Attachment {
     // Base offsets provided on creation
     private final Vector3f baseTranslation;
     private final Vector3f baseRotation;
+    private final Vector3f scale;
 
-    public AttachmentImpl(ItemDisplay displayEntity, AttachmentPoint attachmentPoint, Vector3f baseTranslation, Vector3f baseRotation) {
+    public AttachmentImpl(ItemDisplay displayEntity, AttachmentPoint attachmentPoint, Vector3f baseTranslation, Vector3f baseRotation, Vector3f scale) {
         this.displayEntity = displayEntity;
         this.attachmentPoint = attachmentPoint;
         this.baseTranslation = baseTranslation;
         this.baseRotation = baseRotation;
+        this.scale = scale;
     }
 
     @Override
@@ -48,10 +51,6 @@ public class AttachmentImpl implements Attachment {
             baseRotation.rotateY((float) Math.toRadians(-yaw));
         }
 
-        // For translation, you would apply a similar rotation to the offset vector
-        // This part can get complex with trigonometry, let's start with a simple offset
-        Vector3f finalTranslation = this.getBaseTranslation();
-
         Vector3f offsetVector = new Vector3f(getBaseTranslation().x, getBaseTranslation().y, getBaseTranslation().z);
 
         // Create a rotation quaternion for the offset vector (only using yaw)
@@ -61,7 +60,12 @@ public class AttachmentImpl implements Attachment {
         Vector3f rotatedOffset = offsetRotation.transform(offsetVector);
 
         // Apply the final transformation to the entity
-        Transformation transformation = new Transformation(rotatedOffset, baseRotation, new Vector3f(1, 1, 1), new Quaternionf());
+        Transformation transformation = new Transformation(
+                rotatedOffset,
+                new AxisAngle4f(baseRotation),
+                new Vector3f(scale.x, scale.y, scale.z),
+                new AxisAngle4f()
+        );
         this.getDisplayEntity().setTransformation(transformation);
     }
 
