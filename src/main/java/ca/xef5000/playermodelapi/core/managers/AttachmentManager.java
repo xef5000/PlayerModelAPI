@@ -6,6 +6,7 @@ import ca.xef5000.playermodelapi.api.AttachmentData;
 import ca.xef5000.playermodelapi.api.AttachmentPoint;
 import ca.xef5000.playermodelapi.api.IPlayerModelAPI;
 import ca.xef5000.playermodelapi.core.models.AttachmentImpl;
+import org.bukkit.Location;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,9 +31,12 @@ public class AttachmentManager implements  IPlayerModelAPI {
     }
 
     @Override
-    public void attach(Player player, ItemStack item, AttachmentPoint point, Vector3f offsetTranslation, Quaternionf offsetRotation) {
+    public void attach(Player player, ItemStack item, AttachmentPoint point, Vector3f offsetTranslation, Vector3f offsetRotation) {
         // 1. Spawn the ItemDisplay entity
-        ItemDisplay display = player.getWorld().spawn(player.getEyeLocation(), ItemDisplay.class, (e) -> {
+        Location spawnLocation = player.getEyeLocation();
+        spawnLocation.setYaw(0);
+        spawnLocation.setPitch(0);
+        ItemDisplay display = player.getWorld().spawn(spawnLocation, ItemDisplay.class, (e) -> {
             e.setItemStack(item);
             e.setInvulnerable(true);
             e.setPersistent(false); // Don't save it to disk

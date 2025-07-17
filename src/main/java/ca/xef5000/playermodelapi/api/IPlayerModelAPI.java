@@ -2,7 +2,6 @@ package ca.xef5000.playermodelapi.api;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -18,7 +17,7 @@ public interface IPlayerModelAPI {
      * @param offsetTranslation The base XYZ offset from the attachment point.
      * @param offsetRotation   The base rotational offset.
      */
-    void attach(Player player, ItemStack item, AttachmentPoint point, Vector3f offsetTranslation, Quaternionf offsetRotation);
+    void attach(Player player, ItemStack item, AttachmentPoint point, Vector3f offsetTranslation, Vector3f offsetRotation);
 
     /**
      * Removes all custom attachments from a specific player.
