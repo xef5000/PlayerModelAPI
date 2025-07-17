@@ -34,13 +34,13 @@ public class AttachmentManager implements IPlayerModelAPI {
     public void attach(Player player, ItemStack item, AttachmentPoint point, Vector3f offsetTranslation, Vector3f offsetRotation, Vector3f scale) {
         // 1. Spawn the ItemDisplay entity
         Location spawnLocation = player.getEyeLocation();
-        spawnLocation.setYaw(0);
+        spawnLocation.setYaw(180f);
         spawnLocation.setPitch(0);
         ItemDisplay display = player.getWorld().spawn(spawnLocation, ItemDisplay.class, (e) -> {
             e.setItemStack(item);
             e.setInvulnerable(true);
             e.setPersistent(false); // Don't save it to disk
-            e.setInterpolationDuration(1); // Smooths movement over 1 tick
+            e.setInterpolationDuration(5); // Smooths movement over 1 tick
             e.setInterpolationDelay(-1); // Start smoothing immediately
         });
 

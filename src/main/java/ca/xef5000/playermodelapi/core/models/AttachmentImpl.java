@@ -2,7 +2,6 @@ package ca.xef5000.playermodelapi.core.models;
 
 import ca.xef5000.playermodelapi.api.Attachment;
 import ca.xef5000.playermodelapi.api.AttachmentPoint;
-import org.bukkit.Location;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
@@ -23,16 +22,15 @@ public class AttachmentImpl implements Attachment {
     public AttachmentImpl(ItemDisplay displayEntity, AttachmentPoint attachmentPoint, Vector3f baseTranslation, Vector3f baseRotation, Vector3f scale) {
         this.displayEntity = displayEntity;
         this.attachmentPoint = attachmentPoint;
-        this.baseTranslation = baseTranslation;
+        this.baseTranslation = new Vector3f(baseTranslation);
         this.baseRotation = baseRotation;
         this.scale = scale;
     }
 
     @Override
     public void update(Player player) {
-        Location playerLocation = player.getEyeLocation();
-        float yaw = playerLocation.getYaw();
-        float pitch = playerLocation.getPitch();
+        float yaw = (float) Math.toRadians(player.getLocation().getYaw());
+        float pitch = (float) Math.toRadians(player.getLocation().getPitch());
 
         float rotX = (float) Math.toRadians(getBaseRotation().x);
         float rotY = (float) Math.toRadians(getBaseRotation().y);
@@ -45,28 +43,48 @@ public class AttachmentImpl implements Attachment {
         Quaternionf baseRotation = rotationXQuat.mul(rotationYQuat).mul(rotationZQuat);
 
         // Apply player's rotation based on attachment point
-        if (this.getAttachmentPoint() == AttachmentPoint.HEAD) {
-            baseRotation.rotateY((float) Math.toRadians(-yaw)).rotateX((float) Math.toRadians(pitch));
-        } else if (this.getAttachmentPoint() == AttachmentPoint.BODY) {
-            baseRotation.rotateY((float) Math.toRadians(-yaw));
+        Quaternionf combinedRotation = null;
+        if (this.getAttachmentPoint() == AttachmentPoint.BODY) {
+             combinedRotation = applyPlayerYawRotation(baseRotation, yaw);
+        } else if (this.getAttachmentPoint() == AttachmentPoint.HEAD) {
+            combinedRotation = applyPlayerPitchRotation(baseRotation, pitch);
+            combinedRotation = applyPlayerYawRotation(combinedRotation, yaw);
         }
-
-        Vector3f offsetVector = new Vector3f(getBaseTranslation().x, getBaseTranslation().y, getBaseTranslation().z);
 
         // Create a rotation quaternion for the offset vector (only using yaw)
         Quaternionf offsetRotation = new Quaternionf().rotateY(-yaw);
 
         // Apply the rotation to the offset vector
-        Vector3f rotatedOffset = offsetRotation.transform(offsetVector);
+        Vector3f rotatedOffset = offsetRotation.transform(new Vector3f(this.baseTranslation));
 
         // Apply the final transformation to the entity
         Transformation transformation = new Transformation(
                 rotatedOffset,
-                new AxisAngle4f(baseRotation),
+                combinedRotation,
                 new Vector3f(scale.x, scale.y, scale.z),
-                new AxisAngle4f()
+                new Quaternionf()
         );
         this.getDisplayEntity().setTransformation(transformation);
+    }
+
+    /**
+     * Applies the player yaw rotation to the given quaternion.
+     * @param baseRotation The base rotation quaternion (from config)
+     * @param playerYaw The player's yaw in radians
+     * @return The combined rotation quaternion
+     */
+    private Quaternionf applyPlayerYawRotation(Quaternionf baseRotation, float playerYaw) {
+        // Create player rotation quaternion (around Y axis only - ignoring pitch)
+        Quaternionf playerRotation = new Quaternionf().rotateAxis(-playerYaw, 0, 1, 0);
+        // Combine player rotation with base rotation
+        return playerRotation.mul(baseRotation);
+    }
+
+    private Quaternionf applyPlayerPitchRotation(Quaternionf baseRotation, float playerPitch) {
+        // Create player rotation quaternion (around X axis only - ignoring yaw)
+        Quaternionf playerRotation = new Quaternionf().rotateAxis(-playerPitch, 1, 0, 0);
+        // Combine player rotation with base rotation
+        return playerRotation.mul(baseRotation);
     }
 
     // Getters for all fields...
