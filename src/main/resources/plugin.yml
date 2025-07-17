@@ -1,0 +1,4 @@
+name: PlayerModelAPI
+version: '${version}'
+main: ca.xef5000.playermodelapi.PlayerModelAPI
+api-version: '1.20'
