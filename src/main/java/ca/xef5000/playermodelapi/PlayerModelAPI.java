@@ -10,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class PlayerModelAPI extends JavaPlugin {
 
     private static IPlayerModelAPI apiInstance;
+    private static PlayerModelAPI instance;
 
     private DataManager dataManager;
 
@@ -17,6 +18,7 @@ public final class PlayerModelAPI extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         getLogger().info("PlayerModsAPI has been enabled!");
+        instance = this;
         apiInstance = new AttachmentManager(this);
         dataManager = new DataManagerImpl(this);
         this.getServer().getPluginManager().registerEvents(new AttachmentListener(apiInstance, dataManager, this), this);
@@ -43,5 +45,9 @@ public final class PlayerModelAPI extends JavaPlugin {
             throw new IllegalStateException("PlayerModsAPI is not enabled yet!");
         }
         return apiInstance;
+    }
+
+    public static PlayerModelAPI getInstance() {
+        return instance;
     }
 }

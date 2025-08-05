@@ -1,9 +1,12 @@
 package ca.xef5000.playermodelapi.core.models;
 
+import ca.xef5000.playermodelapi.PlayerModelAPI;
 import ca.xef5000.playermodelapi.api.Attachment;
 import ca.xef5000.playermodelapi.api.AttachmentPoint;
+import ca.xef5000.playermodelapi.core.managers.VisibilityManager;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
@@ -65,6 +68,9 @@ public class AttachmentImpl implements Attachment {
                 new Quaternionf()
         );
         this.getDisplayEntity().setTransformation(transformation);
+        
+        // Sync visibility effects from player to display entity
+        syncVisibilityEffects(player);
     }
 
     /**
@@ -85,6 +91,23 @@ public class AttachmentImpl implements Attachment {
         Quaternionf playerRotation = new Quaternionf().rotateAxis(-playerPitch, 1, 0, 0);
         // Combine player rotation with base rotation
         return playerRotation.mul(baseRotation);
+    }
+    
+    /**
+     * Syncs visibility effects from the player to the display entity.
+     * This ensures that if the player is invisible or glowing, the display entity will have the same effects.
+     * @param player The player to sync visibility effects from
+     */
+    private void syncVisibilityEffects(Player player) {
+        ItemDisplay display = this.getDisplayEntity();
+
+        display.setGlowing(player.isGlowing());
+
+        if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+            VisibilityManager.hideEntity(display);
+        } else {
+            VisibilityManager.showEntity(display);
+        }
     }
 
     // Getters for all fields...

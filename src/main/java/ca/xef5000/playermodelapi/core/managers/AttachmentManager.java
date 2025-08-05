@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -42,6 +43,7 @@ public class AttachmentManager implements IPlayerModelAPI {
             e.setPersistent(false); // Don't save it to disk
             e.setInterpolationDuration(5); // Smooths movement over 1 tick
             e.setInterpolationDelay(-1); // Start smoothing immediately
+            e.setGlowing(player.isGlowing());
         });
 
         // 2. Make it a passenger for perfect positional sync
